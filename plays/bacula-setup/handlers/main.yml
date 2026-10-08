@@ -17,3 +17,7 @@
     state: restarted
     enabled: yes
   listen: Restart bacula storage
+- name: Restart mariadb
+  systemd:
+    name: mariadb
+    state: restarted

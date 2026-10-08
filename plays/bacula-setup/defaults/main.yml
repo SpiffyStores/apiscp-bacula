@@ -15,6 +15,8 @@ bacula_credentials:
   # Database credentials
   # Keep this localhost
   db_hostname: "{{ lookup('pipe', 'grep DB_HOSTNAME ' + (bacula_custom_config | quote) + ' | cut -d= -f2') | default('localhost', true) | trim }}"
+  # Native Bacula catalog driver: mysql or postgresql
+  db_driver: "{{ bacula_driver }}"
   db_name: "{{ lookup('pipe', 'grep DB_NAME ' + (bacula_custom_config | quote) + ' | cut -d= -f2') | default('bacula', true) | trim }}"
   db_user: "{{ lookup('pipe', 'grep DB_USER ' + (bacula_custom_config | quote) + ' | cut -d= -f2') | default('bacula', true) | trim }}"
   db_password: "{{ lookup('pipe', 'grep DB_PASSWORD ' + (bacula_custom_config | quote) + ' | cut -d= -f2') | default(lookup('password', '/dev/null chars=ascii_letters length=24'), true) | trim }}"
@@ -24,3 +26,5 @@ bacula_credentials:
   monitor_password: "{{ lookup('pipe', 'grep MONITOR_PASSWORD ' + (bacula_custom_config | quote) + ' | cut -d= -f2') | default(lookup('password', '/dev/null chars=ascii_letters length=24'), true) | trim }}"
   dir_password: "{{ lookup('pipe', 'grep DIR_PASSWORD ' + (bacula_custom_config | quote) + ' | cut -d= -f2') | default(lookup('password', '/dev/null chars=ascii_letters length=24'), true) | trim }}"
   console_password: "{{ lookup('pipe', 'grep CONSOLE_PASSWORD ' + (bacula_custom_config | quote) + ' | cut -d= -f2') | default(lookup('password', '/dev/null chars=ascii_letters length=24'), true) | trim }}"
+  # Base directory holding per-slot storage; read by conf.d/bacula-sd.sh
+  storage_path: "{{ bacula_storage_path }}"

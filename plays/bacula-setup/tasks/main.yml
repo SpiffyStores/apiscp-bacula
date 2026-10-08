@@ -77,9 +77,11 @@
   loop_control:
     label: "Setting {{ item.key | upper }}"
 - name: Verify libbaccats.so links to {{ bacula_driver }}
-  stat: path="/usr/lib64/libbaccats.so"
+  # Inspect the alternatives target: /usr/lib64/libbaccats.so points at
+  # /etc/alternatives/libbaccats.so, whose own target names the driver.
+  stat: path="/etc/alternatives/libbaccats.so"
   register: r
-- name: Link libbaccats.so to {{ bacula-driver }}
+- name: Link libbaccats.so to {{ bacula_driver }}
   command: alternatives --set libbaccats.so /usr/lib64/libbaccats-"{{ bacula_driver }}".so
   when: not r.stat.exists or not r.stat.islnk or -1 == r.stat.lnk_source.find(bacula_driver)
 - name: Configure Bacula database

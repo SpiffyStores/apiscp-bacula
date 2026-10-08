@@ -2,7 +2,7 @@
 title: Backups
 ---
 
-Backup ApisCP using Bacula, host tested and approved. It's the same solution used internally with Apis Networks since 2010.
+Backup ApisCP using Bacula, host tested and approved. It's the same solution used internally with Apis Networks since 2010. This package targets Enterprise Linux 10 (AlmaLinux/Rocky/RHEL 10) with EPEL's Bacula 15 and MariaDB 10.11+ or PostgreSQL.
 
 This distribution allows for 2 simultaneous backup tasks. Servers are filed under `/etc/bacula/conf.d/servers/n`  where n is 1 or 2 (or more if more than 2 parallel backups requested).
 
@@ -25,13 +25,24 @@ Installation is broken down into Director/Storage Daemon and File Daemon. The RP
 
 ### Director/Storage Daemon automated installation
 
-Install the dependencies and official RPM from ApisCP's Yum repository.
+Enable the EPEL repository (Bacula and the `mailx` provider are not in the EL10 base repositories), then install the official RPM from ApisCP's repository.
 
 ```bash
-yum install -y apnscp-bacula
+dnf install -y epel-release
+dnf install -y apnscp-bacula
 ```
 
 Storage Daemon, Director, and File Daemon will automatically be configured upon installation. Changes may be made to `/etc/sysconfig/bacula-vars`. Note that **SD_HOSTNAME** will default to the machine's IPv4 address. This address is sent to the backup client to inform it to connect to the Storage Daemon at this address.
+
+The catalog driver is selected by **DB_DRIVER** (`mysql` or `postgresql`), which the addin writes to `/etc/sysconfig/bacula-vars`. On EL10 Bacula is built with native drivers only, so the value must **not** carry a `dbi:` prefix.
+
+#### Enterprise Linux 10 notes
+
+- **Catalog schema** — the addin uses the schema shipped with Bacula 15 (catalog `VersionId` 1026). It no longer installs a Bacula 9-era schema, so a fresh catalog is created at the correct version.
+- **Migrating an existing catalog** — `update_bacula_tables` can upgrade a Bacula 9-era catalog (`VersionId` 16) directly to 1026, but the first step rebuilds the `File` table and can take a long time. Back up the catalog (`/usr/libexec/bacula/make_catalog_backup.pl MyCatalog`) and schedule downtime before starting `bacula-dir` on a migrated host.
+- **Bacula upgrades** — the addin replaces the distro `bacula-dir.conf`, `bacula-sd.conf`, and `bconsole.conf` with symlinks to the `*-apnscp.conf` files. A `dnf upgrade` of `bacula-*` will overwrite those symlinks, so re-run the addin after upgrading Bacula.
+- **Additional slots** — Storage Daemon devices are generated for every configured slot (`bacula_slot_count`), so more than 2 parallel backups are supported.
+- **PostgreSQL** — set `DB_DRIVER=postgresql` before running the addin. Catalog table and sequence privileges are granted to the `bacula` role after the schema is created; validate a backup/restore on a real PostgreSQL host before relying on it.
 
 ### Configuring initial backup task
 
@@ -51,7 +62,7 @@ Access the console to run your first backup!
 ```bash
 bconsole
 # Connecting to Director localhost:9101
-# 1000 OK: bacula-dir Version: 5.2.13 (19 February 2013)
+# 1000 OK: bacula-dir Version: 15.0.3 (25 March 2025)
 # Enter a period to cancel a command.
 * run
 # Automatically selected Catalog: MyCatalog
@@ -114,7 +125,7 @@ cp -an /tmp/home/virtual/siteX/shadow/var/www/html /home/virtual/siteX/fst/var/w
 rsync -a /tmp/home/virtual/siteX/shadow/var/www/html /home/virtual/siteX/fst/var/www/
 ```
 
-> In the above examples, `cp` will replace any file missing or older than the backup reference. `rsync` alternatively overwrites all files. CentOS/RHEL aliases `cp` to `cp -i` prompting for confirmation before overwriting.
+> In the above examples, `cp` will replace any file missing or older than the backup reference. `rsync` alternatively overwrites all files. Enterprise Linux aliases `cp` to `cp -i` prompting for confirmation before overwriting.
 
 ## Adding additional machines
 
@@ -122,7 +133,8 @@ For each server, install bacula-client, set a password, whitelist the client on 
 
 ```bash
 # On client, "server-1"
-yum install -y bacula-client
+dnf install -y epel-release
+dnf install -y bacula-client
 # Whitelist Director's IP
 cpcmd rampart:whitelist 43.2.1.5
 # Generate a random password, record it
@@ -166,8 +178,9 @@ Refer to steps above unless specified below.
 Clone repository and install supplemental RPMs.
 
 ```bash
-git clone https://github.com/apisnetworks/apnscp-bacula
-yum install -y bacula-director bacula-client bacula-storage bacula-console
+git clone https://github.com/SpiffyStores/apiscp-bacula
+dnf install -y epel-release
+dnf install -y bacula-director bacula-client bacula-storage bacula-console
 systemctl enable bacula-sd bacula-dir
 ```
 

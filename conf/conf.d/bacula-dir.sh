@@ -8,6 +8,8 @@ CNFDIR="/etc/bacula/local.d/servers"
 
 set -o allexport
 . /etc/sysconfig/bacula-vars
+# Native driver name; fall back to mysql when DB_DRIVER is unset
+DB_DRIVER="${DB_DRIVER:-mysql}"
 set +o allexport
 
 . "$(dirname "$0")/../helpers.sh"
@@ -19,7 +21,8 @@ TEMPLATE=$(grep -v '^[[:space:]]*#' "$(flexible_check servers/base.conf)")
 
 env_fill "${DIR}/database.conf"
 
-find "$CNFDIR" -mindepth 1 -type d | while read -r n ; do
+if [ -d "$CNFDIR" ]; then
+	find "$CNFDIR" -mindepth 1 -maxdepth 1 -type d | while read -r n ; do
 		SLOT=$(basename "$n")
 		perl -n -pe 's!%N%!'"$SLOT"'!g;' "$(flexible_check servers/slot-base.conf)" "$(flexible_check servers/storage.conf)" | env_fill -
 		for f in "$n"/*.conf ; do
@@ -47,3 +50,4 @@ find "$CNFDIR" -mindepth 1 -type d | while read -r n ; do
 						}'  < "$f"
 	done
 done
+fi

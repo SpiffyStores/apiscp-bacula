@@ -4,8 +4,8 @@
 Summary: apnscp Bacula plugin
 Name: apnscp-bacula
 Version: 1.0
-Release: 9%{?dist}
-URL: https://github.com/apisnetworks/apnscp-bacula
+Release: 10%{?dist}
+URL: https://github.com/SpiffyStores/apiscp-bacula
 Vendor: Apis Networks
 License: MIT
 Group: System Environment/Daemons
@@ -14,7 +14,7 @@ Requires: bacula-director
 Requires: bacula-storage
 Requires: bacula-client
 Requires: bacula-console
-Requires: mailx
+Requires: /usr/bin/mailx
 BuildArch: noarch
 
 %description
@@ -67,11 +67,9 @@ rm -rf $RPM_BUILD_ROOT
 %config %{_sysconfdir}/bacula/bacula-dir-apnscp.conf
 %config %{_sysconfdir}/bacula/bacula-sd-apnscp.conf
 %config %{_sysconfdir}/bacula/bconsole-apnscp.conf
-%config %{_sysconfdir}/bacula/query-apnscp.sql
 
 %dir %{apnscp_root}/resources/playbooks/addins/bacula-setup
 %{apnscp_root}/resources/playbooks/addins/bacula-setup/defaults/main.yml
-%{apnscp_root}/resources/playbooks/addins/bacula-setup/files/mysql-tables
 %{apnscp_root}/resources/playbooks/addins/bacula-setup/handlers/main.yml
 %{apnscp_root}/resources/playbooks/addins/bacula-setup/tasks/main.yml
 %{apnscp_root}/resources/playbooks/addins/bacula-setup/tasks/setup-db.yml
@@ -102,10 +100,19 @@ rm -rf $RPM_BUILD_ROOT
 %attr(0755, -, -) %{_sysconfdir}/bacula/conf.d/bacula-sd.sh
 %attr(0755, -, -) %{_sysconfdir}/bacula/conf.d/bconsole.sh
 %attr(0755, -, -) %{_sysconfdir}/bacula/conf.d/template.sh
-%ghost %{_sysconfdir}/my.cnf.d/bacula.conf
+%ghost %{_sysconfdir}/my.cnf.d/bacula.cnf
 
 
 %changelog
+* Thu Oct 08 2026 Matt Saladna <matt@apisnetworks.com> - 1.0-10.apnscp
+- Port to EL10 / EPEL Bacula 15
+- Use native catalog dbdriver (drop dbi: prefix) and write DB_DRIVER
+- Drop Bacula 9-era catalog schema override; use shipped 15.x schema
+- Remove unused query-apnscp.sql and inverted storage.conf resource
+- Generate Storage Daemon devices for all configured slots
+- Add Restart mariadb handler; run PostgreSQL checks as postgres
+- Normalize line endings to LF
+
 * Thu Jan 04 2024 Matt Saladna <matt@apisnetworks.com> - 1.0-9.apnscp
 - Quiet locale errors on non-US systems
 
