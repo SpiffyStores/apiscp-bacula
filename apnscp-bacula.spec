@@ -104,7 +104,7 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
-* Thu Oct 08 2026 Matt Saladna <matt@apisnetworks.com> - 1.0-10.apnscp
+* Thu Oct 08 2026 Spiffy Stores <brian@spiffy.com.au> - 1.0-10.apnscp
 - Port to EL10 / EPEL Bacula 15
 - Use native catalog dbdriver (drop dbi: prefix) and write DB_DRIVER
 - Drop Bacula 9-era catalog schema override; use shipped 15.x schema

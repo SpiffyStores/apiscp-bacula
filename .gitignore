@@ -2,3 +2,4 @@ conf/*.rpmnew
 conf/bacula-fd.conf
 conf/bacula-fd.conf.rpmsave
 conf/local.d/servers/*/*
+AGENTS.md
