@@ -30,9 +30,14 @@ rpmbuild -bb --define 'apnscp_root /usr/local/apnscp' apnscp-bacula.spec
 
 The spec sets `_sourcedir` to the repo root, so run it from there. On a plain
 EL10 host the `--define` is required: `%{apnscp_root}` is otherwise left literal
-and files land under a bogus path. `%run_apnscp_addin` is only expanded at
-install time, so it does not block the build. Output is
+and files land under a bogus path. Output is
 `~/rpmbuild/RPMS/noarch/apnscp-bacula-<ver>-<rel>.el10.noarch.rpm`.
+
+**Build installable RPMs on the ApisCP host.** Scriptlet macros are expanded at
+*build* time, so a build without `/etc/rpm/macros.apnscp` stores the literal
+`%run_apnscp_addin bacula-setup` and `%post` fails at install. The published
+release artifact is built on an ApisCP host; if you must build elsewhere, also
+`--define` `run_apnscp_addin` to the real command.
 
 Config can be smoke-tested without ApisCP by installing EPEL `bacula-*` and
 running the `conf/conf.d/*.sh` generators followed by
@@ -47,6 +52,9 @@ and ApisCP roles) and cannot run here.
    `apnscp-bacula-<version>-<release>.el10.noarch.rpm`.
 3. Keep `%files` in the spec in sync with any added/removed files under `conf/`
    and `plays/`; unmatched files break the build.
+4. Build on the ApisCP host (see above) and publish the RPM + `.sha256` as a
+   GitHub Release asset, tagged `v<version>-<release>` (e.g. `v1.0-10`); the
+   `latest.rpm` symlink target name must match the asset filename.
 
 ## Gotchas
 

@@ -25,12 +25,14 @@ Installation is broken down into Director/Storage Daemon and File Daemon. The RP
 
 ### Director/Storage Daemon automated installation
 
-Enable the EPEL repository (Bacula and the `mailx` provider are not in the EL10 base repositories), then install the official RPM from ApisCP's repository.
+Enable the EPEL repository (Bacula and the `mailx` provider are not in the EL10 base repositories), then install the RPM from the release:
 
 ```bash
 dnf install -y epel-release
-dnf install -y apnscp-bacula
+dnf install -y https://github.com/SpiffyStores/apiscp-bacula/releases/download/v1.0-10/apnscp-bacula-1.0-10.el10.noarch.rpm
 ```
+
+The RPM **must be built on the ApisCP host** so `/etc/rpm/macros.apnscp` expands `%run_apnscp_addin` into the addin call at build time. A build on a plain host stores the macro literally and the `%post` addin step fails (see [Manual installation](#Manual-installation)).
 
 Storage Daemon, Director, and File Daemon will automatically be configured upon installation. Changes may be made to `/etc/sysconfig/bacula-vars`. Note that **SD_HOSTNAME** will default to the machine's IPv4 address. This address is sent to the backup client to inform it to connect to the Storage Daemon at this address.
 
