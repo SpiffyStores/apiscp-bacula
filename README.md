@@ -101,17 +101,21 @@ Now that the backup has completed (`status dir` from bconsole), let's restore fr
 4. Take the JobId from the result.
 5. Locate *Select full restore to a specified Job date*, usually item 12.
 6. Enter JobId from above.
-7. Navigate to the location to restore, all sites are backed up by site.
+7. Navigate to the location to restore; all sites are backed up by site. To restore a whole site, mark it from `/home/virtual`:
   ```bash
   cd /home/virtual
   ls
-  cd site1/
-  cd shadow/var/www/html
+  mark site1
+  done
+  ```
+  To restore only part of a site, `cd` into it first:
+  ```bash
+  cd /home/virtual/site1/shadow/var/www/html
   mark *
   done
   ```
   ::: tip
-  In future iterations of ApisCP, you will be able to mark site1 from /home/virtual to restore the entire site
+  `mark site1` restores the entire site in one operation - its `info/` configuration tree and its `shadow/` data, including the site's `home/<user>/mysql_backups/` database dumps.
   :::
 8. Confirm the location to restore. By default */tmp* is used to avoid overwriting data. Type `mod` to modify the restore parameters, then change path to */* to overwrite everything.
 9. Enter `yes` to confirm everything is OK

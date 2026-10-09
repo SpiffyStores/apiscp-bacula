@@ -3,3 +3,4 @@ conf/bacula-fd.conf
 conf/bacula-fd.conf.rpmsave
 conf/local.d/servers/*/*
 AGENTS.md
+Synology-Bacula-15.0.3-Setup.md
